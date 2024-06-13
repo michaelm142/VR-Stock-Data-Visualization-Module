@@ -50,6 +50,7 @@ public class GridLineController : MonoBehaviour
         heightPrev = rect.height;
         minValuePrev = MinValue;
         maxValuePrev = MaxValue;
+
     }
 
     // Update is called once per frame
@@ -65,6 +66,7 @@ public class GridLineController : MonoBehaviour
         if (MaxValue != maxValuePrev)
             dirty = true;
 
+
         if (dirty)
             Validate();
 
@@ -76,13 +78,11 @@ public class GridLineController : MonoBehaviour
 
     private void Validate()
     {
-        // clear existing objects
-
-
         Rect rect = GetComponent<RectTransform>().rect;
         float widthDifference = rect.width / (MaxValue.x - MinValue.x);
         float heightDifference = rect.height / (MaxValue.y - MinValue.y);
 
+        // clear existing objects
         horizontalLines.ForEach(line => Destroy(line.gameObject));
         verticalLines.ForEach(line => Destroy(line.gameObject));
         verticalLines.Clear();

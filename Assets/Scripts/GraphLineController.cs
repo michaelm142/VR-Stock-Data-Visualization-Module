@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices.ComTypes;
 using UnityEngine;
 
@@ -20,26 +21,7 @@ public class GraphLineController : MonoBehaviour
     {
         line = GetComponent<LineRenderer>();
 
-        List<float> fileData = new List<float>();
-        using (StreamReader file = new StreamReader(new FileStream(filename, FileMode.Open)))
-        {
-            while (!file.EndOfStream)
-            {
-                string line = file.ReadLine();
-                line = line.Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries)[0];
-                float value = Convert.ToSingle(line);
-                fileData.Add(value);
-            }
-        }
-
-        for (int i = 0; i < fileData.Count; i++)
-        {
-            dataCurve.AddKey(i, fileData[i]);
-        }
-
         grid.Validating.AddListener(Validate);
-
-        Validate();
     }
 
     // Update is called once per frame
@@ -48,8 +30,22 @@ public class GraphLineController : MonoBehaviour
         
     }
 
+    public void SetData(List<float> data)
+    {
+        while (dataCurve.keys.Length > 0)
+            dataCurve.RemoveKey(0);
+        for (int i = 0; i < data.Count; i++)
+        {
+            dataCurve.AddKey(i, data[i]);
+        }
+
+        Validate();
+    }
+
     private void Validate()
     {
+        line = GetComponent<LineRenderer>();
+
         Rect rect = GetComponent<RectTransform>().rect;
         List<Vector3> positions = new List<Vector3>();
         for (float x = 0, i = grid.MinValue.x; x < rect.width; x+=grid.WidthStep, i++)
