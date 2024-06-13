@@ -1,3 +1,4 @@
+using System;
 using FinanceModule;
 using System.Collections;
 using System.Collections.Generic;
@@ -15,9 +16,8 @@ public class WatchlistTickerController : MonoBehaviour
     public GameObject tickerPrefab;
 
     public float TickerSpacing = 10.0f;
-    private float removeTimer = 1.0f;
 
-    private string tickerLayout = "Open\t\tHigh\t\tLow\t\tClose\n${0}\t{1}${2}\t{3}${4}\t{5}${6}";
+    private string tickerLayout = "Last Price\tChange\t% Change\t\n${0}\t{1}<color=\"{2}\">${3}{4}\t<color=\"{5}\">{6}%";
 
     // Start is called before the first frame update
     void Start()
@@ -70,20 +70,21 @@ public class WatchlistTickerController : MonoBehaviour
 
     void UpdateTicker(string symbol, GameObject ticker)
     {
-        Stonk? stonk = Stonks.Get(symbol.ToUpper());
-        if (stonk == null)
+        Stonk? s = Stonks.Get(symbol.ToUpper());
+        if (s == null)
             return;
+        Stonk stonk = s.Value;
+        stonk.HistoricalData = Stonks.Get(stonk, System.DateTime.Now.AddDays(-1), System.DateTime.Now);
+        Stonket yesterdayStonket = stonk.HistoricalData[0];
+        Stonket todayStonket = stonk.HistoricalData[1];
 
-        Stonket stonket = Stonks.Get(stonk.Value, System.DateTime.Now, System.DateTime.Now)[0];
-        string openPrice = System.Math.Round(stonket.OpeningPrice, 2).ToString();
-        string highPrice = System.Math.Round(stonket.HighPrice, 2).ToString();
-        string lowPrice = System.Math.Round(stonket.LowPrice, 2).ToString();
-        string closePrice = System.Math.Round(stonket.ClosingPrice, 2).ToString();
+        decimal closePrice = todayStonket.AdjustedClosingPrice;
+        decimal priceChange = todayStonket.AdjustedClosingPrice - yesterdayStonket.AdjustedClosingPrice;
+        decimal percentChange = System.Math.Round(priceChange / yesterdayStonket.AdjustedClosingPrice * 100, 2);
+        closePrice = Math.Round(closePrice, 2);
+        priceChange = Math.Round(priceChange, 2);
+
         ticker.transform.Find("Ticker/Text").GetComponent<TextMeshProUGUI>().text =
-            string.Format(tickerLayout,
-            openPrice, openPrice.Length < 5 ? "\t" : "",
-            highPrice, highPrice.Length < 5 ? "\t" : "",
-            lowPrice, lowPrice.Length < 5 ? "\t" : "",
-            closePrice, closePrice.Length < 5 ? "\t" : "");
+            string.Format(tickerLayout, closePrice, closePrice.ToString().Length < 5 ? "\t" : "", priceChange > 0 ? "green" : "red", Math.Abs(priceChange), Math.Abs(priceChange).ToString().Length < 5 ? "\t" : "", percentChange > 0 ? "green" : "red", percentChange);
     }
 }
