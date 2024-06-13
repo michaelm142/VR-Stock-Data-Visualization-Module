@@ -44,9 +44,15 @@ public class GraphLineController : MonoBehaviour
 
     private void Validate()
     {
+        if (grid.WidthStep < 0)
+            return;
+
         line = GetComponent<LineRenderer>();
 
         Rect rect = GetComponent<RectTransform>().rect;
+        if (rect.width < 0.0f)
+            return;
+
         List<Vector3> positions = new List<Vector3>();
         for (float x = 0, i = grid.MinValue.x; x < rect.width; x+=grid.WidthStep, i++)
         {

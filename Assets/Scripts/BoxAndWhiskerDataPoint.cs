@@ -65,6 +65,7 @@ public class BoxAndWhiskerDataPoint : MonoBehaviour
         prev_UpperQuartile = UpperQuartile;
         prev_LowerExtreme = LowerExtreme;
         prev_LowerQuartile = LowerQuartile;
+
     }
 
     private void Validate()

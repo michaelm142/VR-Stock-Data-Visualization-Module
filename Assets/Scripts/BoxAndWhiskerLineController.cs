@@ -51,6 +51,8 @@ public class BoxAndWhiskerLineController : MonoBehaviour
 
     private void Validate()
     {
+        if (grid.WidthStep < 0)
+            return;
 
         // clear existing data points
         points.ForEach(p => Destroy(p.gameObject));
