@@ -15,7 +15,7 @@ public class WatchlistTickerController : MonoBehaviour
 
     public GameObject tickerPrefab;
 
-    public float TickerSpacing = 10.0f;
+    public float TickerSpacing = 0;
 
     private string tickerLayout = "Last Price\tChange\t% Change\t\n${0}\t{1}<color=\"{2}\">${3}{4}\t<color=\"{5}\">{6}%";
 

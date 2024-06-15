@@ -4,22 +4,49 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 public class StockGraphManager : MonoBehaviour
 {
     public GameObject stockGraphPrefab;
+    public GameObject watchlistPrefab;
 
     // Start is called before the first frame update
     void Start()
     {
         Stonks.Load();
-        CreateStockGraph("AMC", Vector3.zero);
+        //CreateStockGraph("AMC", Vector3.zero);
+        CreateStockTicker(Vector3.zero);
     }
 
     // Update is called once per frame
     void Update()
     {
         
+    }
+
+    private GameObject CreateCanvas(string name, float width, float height)
+    {
+        GameObject stockGraph = new GameObject(name, typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
+        Canvas canvas = stockGraph.GetComponent<Canvas>();
+        canvas.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width);
+        canvas.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
+        canvas.renderMode = RenderMode.WorldSpace;
+        canvas.worldCamera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
+        canvas.referencePixelsPerUnit = 1;
+        canvas.sortingOrder = -100;
+        CanvasScaler scaler = canvas.GetComponent<CanvasScaler>();
+        scaler.referencePixelsPerUnit = 1;
+
+        return stockGraph;
+    }
+
+    public void CreateStockTicker(Vector3 position)
+    {
+        GameObject canvas = CreateCanvas("StockTicker", 3.0f, 5.0f);
+        canvas.transform.position = position;
+
+        GameObject watchList = Instantiate(watchlistPrefab, canvas.transform);
     }
 
     public void CreateStockGraph(string symbol, Vector3 position)
@@ -35,18 +62,8 @@ public class StockGraphManager : MonoBehaviour
         Debug.Log("Downloaded data for " + stonk.CompanyName);
 
         // create canvas
-        GameObject stockGraph = new GameObject(string.Format("Stock Graph for {0}", symbol), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
-        Canvas canvas = stockGraph.GetComponent<Canvas>();
-        canvas.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 5.0f);
-        canvas.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 5.0f);
-        canvas.renderMode = RenderMode.WorldSpace;
-        canvas.worldCamera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
-        canvas.referencePixelsPerUnit = 1;
-        canvas.sortingOrder = -100;
+        GameObject stockGraph = CreateCanvas(string.Format("Stock Graph for {0}", symbol), 5.0f, 5.0f);
         stockGraph.transform.position = position;
-        CanvasScaler scaler = canvas.GetComponent<CanvasScaler>();
-        scaler.referencePixelsPerUnit = 1;
-
         // create graph element
         GameObject graphElement = Instantiate(stockGraphPrefab, stockGraph.transform);
         graphElement.transform.Find("Controls/StockSymbol").GetComponent<TMPro.TMP_InputField>().text = stonk.Symbol;
