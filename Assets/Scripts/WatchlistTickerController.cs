@@ -73,8 +73,22 @@ public class WatchlistTickerController : MonoBehaviour
         Stonk? s = Stonks.Get(symbol.ToUpper());
         if (s == null)
             return;
+        // determine the current buisness day
+        DateTime today = DateTime.Now;
+        DateTime yesterDay = DateTime.Now.AddDays(-1);
+        if (today.DayOfWeek == DayOfWeek.Saturday)
+        {
+            today = DateTime.Now.AddDays(-1);
+            yesterDay = DateTime.Now.AddDays(-2);
+        }
+        if (today.DayOfWeek == DayOfWeek.Sunday)
+        {
+            today = DateTime.Now.AddDays(-2);
+            yesterDay = DateTime.Now.AddDays(-3);
+        }
+        // download stock data
         Stonk stonk = s.Value;
-        stonk.HistoricalData = Stonks.Get(stonk, System.DateTime.Now.AddDays(-1), System.DateTime.Now);
+        stonk.HistoricalData = Stonks.Get(stonk, yesterDay, today);
         Stonket yesterdayStonket = stonk.HistoricalData[0];
         Stonket todayStonket = stonk.HistoricalData[1];
 
@@ -85,6 +99,13 @@ public class WatchlistTickerController : MonoBehaviour
         priceChange = Math.Round(priceChange, 2);
 
         ticker.transform.Find("Ticker/Text").GetComponent<TextMeshProUGUI>().text =
-            string.Format(tickerLayout, closePrice, closePrice.ToString().Length < 5 ? "\t" : "", priceChange > 0 ? "green" : "red", Math.Abs(priceChange), Math.Abs(priceChange).ToString().Length < 5 ? "\t" : "", percentChange > 0 ? "green" : "red", percentChange);
+            string.Format(tickerLayout, 
+            /*0*/closePrice, 
+            /*1*/closePrice.ToString().Length < 5 ? "\t" : "", 
+            /*2*/priceChange > 0 ? "green" : "red", 
+            /*3*/Math.Abs(priceChange), 
+            /*4*/Math.Abs(priceChange).ToString().Length < 5 ? "\t" : "",
+            /*5*/percentChange > 0 ? "green" : "red", 
+            /*6*/percentChange);
     }
 }
